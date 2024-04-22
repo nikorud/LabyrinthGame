@@ -6,9 +6,12 @@
 class Wall {
   private:
     Line *l;
+    int thickness;
 
   public:
     Wall(Line *l);
+    Line getLine();
+    int getThickness();
     void draw();
 };
 

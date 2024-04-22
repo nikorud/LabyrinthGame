@@ -7,15 +7,14 @@
 
 class Maze {
   private:
-    //LinkedList<Wall> walls = LinkedList<Wall>();
-    //LinkedList<Hole> holes = LinkedList<Hole>();
-    /*Wall *walls[100];
-    Hole *holes[30];*/
+    LinkedList<Wall*> walls = LinkedList<Wall*>();
+    LinkedList<Hole*> holes = LinkedList<Hole*>();
 
   public:
-    //Maze(Wall *walls[100] , Hole *holes[30]);
-    Maze();//(LinkedList<Wall> walls, LinkedList<Hole> holes);
+    Maze();
     void draw();
+    bool addWall(Wall *w);
+    bool addHole(Hole *h);
 };
 
 #endif

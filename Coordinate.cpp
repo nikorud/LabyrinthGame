@@ -1,19 +1,18 @@
 #include "Coordinate.h"
+#include "Display.h"
 #include <string.h>
 
-// size of touchscreen in landscape mode
-#define MAX_X 480
-#define MAX_Y 320
+#define INFO_BAR_SIZE 15
 
 Coordinate::Coordinate(int x, int y) {
   // default value is 0 if value is unvalid
-  if(x < MAX_X) {
+  if(x < Display::getSizeX()) {
     this -> x = x;
   } else {
     this -> x = 0;
   }
 
-  if(y < MAX_Y) {
+  if(y < Display::getSizeY()-INFO_BAR_SIZE) {
     this -> y = y;
   } else {
     this -> y = 0;
@@ -25,11 +24,12 @@ int Coordinate::getX() {
 }
 
 int Coordinate::getY() {
-  return x;
+  // this will return the y-position starting with y=15 (under the Info-Bar ["Level (Difficulty), Attempts: x"])
+  return y + INFO_BAR_SIZE;
 }
 
 bool Coordinate::setX(int x) {
-  if(x < MAX_X) {
+  if(x < Display::getSizeX()) {
     this -> x = x;
     return true;
   }
@@ -37,7 +37,7 @@ bool Coordinate::setX(int x) {
 }
 
 bool Coordinate::setY(int y) {
-  if(y < MAX_Y) {
+  if(y < Display::getSizeY()) {
     this -> y = y;
     return true;
   }

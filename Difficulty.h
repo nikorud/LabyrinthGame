@@ -7,4 +7,6 @@ enum Difficulty {
   HARD = 3
 };
 
+const char* getName(Difficulty difficulty);
+
 #endif

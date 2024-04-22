@@ -1,4 +1,11 @@
 #include "Display.h"
+#include "Gyro.h"
+#include "Coordinate.h"
+#include "Line.h"
+#include "Wall.h"
+#include "Hole.h"
+#include "Maze.h"
+#include "Level.h"
 
 //Touchscreen Libraries:
 #include <Adafruit_GFX.h>    // Core graphics library
@@ -55,8 +62,8 @@ void Display::initialize() {
   uint16_t identifier = tft.readID();
   tft.begin(identifier);
   Serial.print("TFT size is "); Serial.print(tft.width()); Serial.print("x"); Serial.println(tft.height());
-  tft.setRotation(0);
-  tft.fillScreen(BLACK);
+  tft.setRotation(1);
+  tft.fillScreen(WHITE);
 }
 
 void Display::getTouchInput() {
@@ -137,4 +144,91 @@ void Display::draw() {
  
   tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
   currentcolor = RED;
+}
+
+int Display::getSizeX() {
+  return tft.width();
+}
+
+int Display::getSizeY() {
+  return tft.height();
+}
+
+
+void Display::drawLine(int x1, int y1, int x2, int y2, uint16_t color) {
+  tft.drawLine(x1, y1, x2, y2, color);
+}
+
+void Display::drawLine(Line *l, uint16_t color) {
+  drawLine(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), l->getEnd().getY(), color);
+}
+
+void Display::drawLine(Line *l) {
+  drawLine(l, BLUE);
+}
+
+void Display::fillRect(int x1, int y1, int x2, int y2, uint16_t color) {
+  tft.fillRect(x1, y1, x2, y2, color);
+}
+
+void Display::fillRect(Coordinate *start, Coordinate *end, uint16_t color) {
+  fillRect(start->getX(), start->getY(), end->getX(), end->getY(), color);
+}
+
+/*void Display::drawWall(Wall *w) {
+  if(w->getLine().getStart().getX() == w->getLine().getEnd().getX()) {
+    //vertical line
+    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX()+w->getThickness(), w->getLine().getEnd().getY(), BLUE);
+  } else {
+    //horizontal line
+    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX(), w->getLine().getEnd().getY()+w->getThickness(), BLUE);    
+  }
+}*/
+
+void Display::drawWall(Line *l) {
+  if(l->getStart().getX() == l->getEnd().getX()) {
+    //vertical line
+    fillRect(l->getStart().getX(), l->getStart().getY(), (l->getEnd().getX())+10, l->getEnd().getY(), BLUE);
+  } else {
+    //horizontal line
+    fillRect(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), (l->getEnd().getY())+10, BLUE);
+  }
+}
+
+#define HOLE_SIZE 40
+#define BALL_SIZE 30
+
+void Display::drawCircle(int x, int y, int radius, uint16_t color) {
+  tft.drawCircle(x, y, radius, color);
+}
+
+void Display::drawCircle(Coordinate *c, int radius, uint16_t color) {
+  drawCircle(c->getX(), c->getY(), radius, color);
+}
+
+void Display::fillCircle(int x, int y, int radius, uint16_t color) {
+  tft.fillCircle(x, y, radius, color);
+}
+
+void Display::fillCircle(Coordinate *c, int radius, uint16_t color) {
+  fillCircle(c->getX(), c->getY(), radius, color);
+}
+
+void Display::drawHole(Coordinate *c) {
+  fillCircle(c->getX(), c->getY(), HOLE_SIZE/2, BLACK);
+}
+
+void Display::drawBall(Coordinate *c) {
+  fillCircle(c->getX(), c->getY(), BALL_SIZE/2, BLUE);
+}
+
+void Display::printText(int x, int y, String txt) {
+  tft.setTextSize(1);
+  tft.setTextColor(WHITE, BLACK);
+  tft.setCursor(x, y);
+  tft.print(txt);
+}
+
+void Display::printText(Coordinate *c, String txt) {
+  printText(c->getX(), c->getY(), txt);
 }

@@ -1,5 +1,6 @@
 #include "Line.h"
 #include "Coordinate.h"
+#include "Display.h"
 
 Line::Line(Coordinate *start, Coordinate *end) {
   this -> start = start;
@@ -12,4 +13,8 @@ Coordinate Line::getStart() {
 
 Coordinate Line::getEnd() {
   return *end;
+}
+
+void Line::draw() {
+  Display::drawLine(this);
 }

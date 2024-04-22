@@ -12,6 +12,7 @@ class Line {
     Line(Coordinate *start, Coordinate *end);
     Coordinate getStart();
     Coordinate getEnd();
+    void draw();
 };
 
 #endif
