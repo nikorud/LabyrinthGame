@@ -1,15 +1,12 @@
 #include "Display.h"
 #include "Gyro.h"
 #include "Coordinate.h"
-#include "Line.h"
-#include "Wall.h"
-#include "Hole.h"
 #include "Maze.h"
 #include "Level.h"
+#include "Ball.h"
 
-//Touchscreen Libraries:
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_TFTLCD.h> // Hardware-specific library
+#include <Adafruit_GFX.h>    // Touchscreen - Core graphics library
+#include <Adafruit_TFTLCD.h> // Touchscreen - Hardware-specific library
 #include <TouchScreen.h>
 
 #if defined(__SAM3X8E__)
@@ -17,10 +14,10 @@
     #define F(string_literal) string_literal
 #endif
 
-#define YP A2  // must be an analog pin, use "An" notation!
-#define XM A3  // must be an analog pin, use "An" notation!
-#define YM 8   // can be a digital pin
-#define XP 9   // can be a digital pin
+#define YP A2 
+#define XM A3 
+#define YM 8
+#define XP 9
 
 #define TS_MINX 130
 #define TS_MAXX 905
@@ -53,15 +50,19 @@ MCUFRIEND_kbv tft;
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
 
+#define DISPLAY_SIZE_X 480
+#define DISPLAY_SIZE_Y 320
+
 #define BOXSIZE 40
 #define PENRADIUS 2
 int oldcolor, currentcolor;
+
+TSPoint p;
 
 void Display::initialize() {
   tft.reset();
   uint16_t identifier = tft.readID();
   tft.begin(identifier);
-  Serial.print("TFT size is "); Serial.print(tft.width()); Serial.print("x"); Serial.println(tft.height());
   tft.setRotation(1);
   tft.fillScreen(WHITE);
 }
@@ -69,7 +70,7 @@ void Display::initialize() {
 void Display::getTouchInput() {
   // ... read Touchscreen input
   digitalWrite(13, HIGH);
-  TSPoint p = ts.getPoint();
+  p = ts.getPoint();
   digitalWrite(13, LOW);
 
   // if sharing pins, you'll need to fix the directions of the touchscreen pins
@@ -79,71 +80,92 @@ void Display::getTouchInput() {
   // we have some minimum pressure we consider 'valid'
   // pressure of 0 means no pressing!
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    
-    if (p.y < (TS_MINY-5)) {
-      Serial.println("erase");
-      // press the bottom of the screen to erase 
-      tft.fillRect(0, BOXSIZE, tft.width(), tft.height()-BOXSIZE, BLACK);
-    }
-    p.x = p.x + p.y;       
-    p.y = p.x - p.y;            
-    p.x = p.x - p.y;   
+    p.y = p.y + p.x;       
+    p.x = p.y - p.x;            
+    p.y = p.y - p.x;   
     
     // scale from 0->1023 to tft.width
-    p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
-    //p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-    p.y = tft.height()-(map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-     //p.y = map(p.y, TS_MINY, TS_MAXY, tft.height(), 0);
+    p.y = map(p.y, TS_MINX, TS_MAXX, tft.width(), 0);
+    p.x = tft.height()-(map(p.x, TS_MINY, TS_MAXY, tft.height(), 0));
+  }
+}
 
-    if (p.y < BOXSIZE) {
-       oldcolor = currentcolor;
+void Display::fillScreen(uint16_t color) {
+  tft.fillScreen(color);
+}
 
-       if (p.x < BOXSIZE) { 
-         currentcolor = RED; 
-         tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*2) {
-         currentcolor = YELLOW;
-         tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*3) {
-         currentcolor = GREEN;
-         tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*4) {
-         currentcolor = CYAN;
-         tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*5) {
-         currentcolor = BLUE;
-         tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*6) {
-         currentcolor = MAGENTA;
-         tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
-       }
+void Display::startScreen() {
+  tft.fillScreen(BLACK);
+  printText(40, 40, "Micro:Bit Project", 4, BLUE);
+  printText(125, 100, "Tobias WOESENBOECK", 2);
+  printText(170, 130, "Niko RUDOLF", 2);
 
-       if (oldcolor != currentcolor) {
-          if (oldcolor == RED) tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
-          if (oldcolor == YELLOW) tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
-          if (oldcolor == GREEN) tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
-          if (oldcolor == CYAN) tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
-          if (oldcolor == BLUE) tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
-          if (oldcolor == MAGENTA) tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
-       }
+  tft.drawRect(40, 180, 400, 100, WHITE);
+  printText(110, 218, "START MAZE GAME", 3);
+
+  boolean buttonPressed = false;
+  while(!buttonPressed) {
+    getTouchInput();
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+      if (p.y > 218) {
+        buttonPressed = true;
+      }
     }
-    if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
-      tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+  }
+  tft.fillScreen(WHITE);
+}
+
+void Display::retryScreen() {
+  fillRect(80, 80, DISPLAY_SIZE_X-160, DISPLAY_SIZE_Y-160, BLACK);
+  tft.drawRect(82, 82, DISPLAY_SIZE_X-164, DISPLAY_SIZE_Y-164, WHITE);
+  printText(160, 120, "You failed! :(", 2, RED);
+
+  tft.drawRect(90, 170, 300, 60, WHITE);
+  printText(175, 192, "RETRY LEVEL", 2);
+
+  boolean buttonPressed = false;
+  while(!buttonPressed) {
+    getTouchInput();
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+      if (p.y > 100 && p.y < 320) {
+        buttonPressed = true;
+        Level::lvl->load();
+      }
     }
   }
 }
 
-void Display::draw() {
-  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
-  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
-  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
-  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
-  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
-  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
-  // tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, WHITE);
- 
-  tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-  currentcolor = RED;
+void Display::nextLvlScreen() {
+  fillRect(80, 80, DISPLAY_SIZE_X-160, DISPLAY_SIZE_Y-160, BLACK);
+  tft.drawRect(82, 82, DISPLAY_SIZE_X-164, DISPLAY_SIZE_Y-164, WHITE);
+  printText(130, 120, "Level finished! :D", 2, GREEN);
+
+  tft.drawRect(90, 170, 300, 60, WHITE);
+  printText(178, 192, "NEXT LEVEL", 2);
+
+  boolean buttonPressed = false;
+  while(!buttonPressed) {
+    getTouchInput();
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+      if (p.y > 100 && p.y < 320) {
+        buttonPressed = true;
+        Level::lvl->loadNextLvl();
+      }
+    }
+  }
+}
+
+void Display::endScreen() {
+  tft.fillScreen(BLACK);
+  printText(40, 40, "Micro:Bit Project", 4, BLUE);
+  printText(125, 100, "Tobias WOESENBOECK", 2);
+  printText(170, 130, "Niko RUDOLF", 2);  
+  printText(70, 200, "YOU FINISHED THE GAME", 3, GREEN);
+  printText(60, 240, "THANK TOU FOR PLAYING!", 3, MAGENTA);
+
+  while(1) {
+    // ... final endless loop, all levels completed ...
+  }
 }
 
 int Display::getSizeX() {
@@ -159,14 +181,6 @@ void Display::drawLine(int x1, int y1, int x2, int y2, uint16_t color) {
   tft.drawLine(x1, y1, x2, y2, color);
 }
 
-void Display::drawLine(Line *l, uint16_t color) {
-  drawLine(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), l->getEnd().getY(), color);
-}
-
-void Display::drawLine(Line *l) {
-  drawLine(l, BLUE);
-}
-
 void Display::fillRect(int x1, int y1, int x2, int y2, uint16_t color) {
   tft.fillRect(x1, y1, x2, y2, color);
 }
@@ -175,28 +189,23 @@ void Display::fillRect(Coordinate *start, Coordinate *end, uint16_t color) {
   fillRect(start->getX(), start->getY(), end->getX(), end->getY(), color);
 }
 
-/*void Display::drawWall(Wall *w) {
-  if(w->getLine().getStart().getX() == w->getLine().getEnd().getX()) {
-    //vertical line
-    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX()+w->getThickness(), w->getLine().getEnd().getY(), BLUE);
-  } else {
-    //horizontal line
-    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX(), w->getLine().getEnd().getY()+w->getThickness(), BLUE);    
-  }
-}*/
+#define WALL_THICKNESS 10
 
-void Display::drawWall(Line *l) {
-  if(l->getStart().getX() == l->getEnd().getX()) {
-    //vertical line
-    fillRect(l->getStart().getX(), l->getStart().getY(), (l->getEnd().getX())+10, l->getEnd().getY(), BLUE);
-  } else {
-    //horizontal line
-    fillRect(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), (l->getEnd().getY())+10, BLUE);
+void Display::drawWall(int x, int y) {
+  drawWall(x, y, WALL_THICKNESS);
+}
+
+void Display::drawWall(int x, int y, int wSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && wSize > 0) {
+    fillRect(x, y, wSize, wSize, BLACK);
   }
 }
 
-#define HOLE_SIZE 40
-#define BALL_SIZE 30
+void Display::drawExit(int x, int y, int gSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && gSize > 0) {
+    fillRect(x, y, gSize, gSize, MAGENTA);
+  }
+}
 
 void Display::drawCircle(int x, int y, int radius, uint16_t color) {
   tft.drawCircle(x, y, radius, color);
@@ -214,21 +223,74 @@ void Display::fillCircle(Coordinate *c, int radius, uint16_t color) {
   fillCircle(c->getX(), c->getY(), radius, color);
 }
 
-void Display::drawHole(Coordinate *c) {
-  fillCircle(c->getX(), c->getY(), HOLE_SIZE/2, BLACK);
+void Display::drawHole(int x, int y, int hSize) {
+  fillCircle(x+(hSize/2), y+(hSize/2), hSize/2, YELLOW);
 }
 
-void Display::drawBall(Coordinate *c) {
-  fillCircle(c->getX(), c->getY(), BALL_SIZE/2, BLUE);
+void Display::drawBall(int x, int y, int bSize) {
+  fillCircle(x+(bSize/2), y+(bSize/2), bSize/2, BLUE);
+}
+
+void Display::drawBall(int old_x, int old_y, int new_x, int new_y, int bSize) {
+  fillCircle(old_x+(bSize/2), old_y+(bSize/2), bSize/2, WHITE);
+  Level::refreshLvl();
+  fillCircle(new_x+(bSize/2), new_y+(bSize/2), bSize/2, BLUE);
+}
+
+void Display::printText(int x, int y, String txt, int txtSize, uint16_t color) {
+  tft.setTextSize(txtSize);
+  tft.setTextColor(color, BLACK); // ... background is black ...
+  tft.setCursor(x, y);
+  tft.print(txt);
+}
+
+void Display::printText(int x, int y, String txt, int txtSize) {
+  printText(x, y, txt, txtSize, WHITE);
 }
 
 void Display::printText(int x, int y, String txt) {
-  tft.setTextSize(1);
-  tft.setTextColor(WHITE, BLACK);
-  tft.setCursor(x, y);
-  tft.print(txt);
+  printText(x, y, txt, 1);
 }
 
 void Display::printText(Coordinate *c, String txt) {
   printText(c->getX(), c->getY(), txt);
 }
+
+// --------- old versions of functions ----------------------
+
+/*void Display::drawWall(Wall *w) {
+  if(w->getLine().getStart().getX() == w->getLine().getEnd().getX()) {
+    //vertical line
+    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX()+w->getThickness(), w->getLine().getEnd().getY(), BLUE);
+  } else {
+    //horizontal line
+    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX(), w->getLine().getEnd().getY()+w->getThickness(), BLUE);    
+  }
+}*/
+
+/*void Display::drawWall(Line *l) { 
+  if(l->getStart().getX() == l->getEnd().getX()) {
+    //vertical line
+    fillRect(l->getStart().getX(), l->getStart().getY(), (l->getEnd().getX())+10, l->getEnd().getY(), BLUE);
+  } else {
+    //horizontal line
+    fillRect(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), (l->getEnd().getY())+10, BLUE);
+  }
+}*/
+
+/* void Display::drawBall(Coordinate *c) {
+  fillCircle(c->getX(), c->getY(), BALL_SIZE/2, BLUE);
+} */
+
+
+/*void Display::drawHole(Coordinate *c) {
+  fillCircle(c->getX(), c->getY(), HOLE_SIZE/2, YELLOW);
+}*/
+
+/*void Display::drawLine(Line *l, uint16_t color) {
+  drawLine(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), l->getEnd().getY(), color);
+}
+
+void Display::drawLine(Line *l) {
+  drawLine(l, BLUE);
+}*/

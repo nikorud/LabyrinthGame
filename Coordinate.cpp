@@ -25,7 +25,7 @@ int Coordinate::getX() {
 
 int Coordinate::getY() {
   // this will return the y-position starting with y=15 (under the Info-Bar ["Level (Difficulty), Attempts: x"])
-  return y + INFO_BAR_SIZE;
+  return y; // + INFO_BAR_SIZE;
 }
 
 bool Coordinate::setX(int x) {
