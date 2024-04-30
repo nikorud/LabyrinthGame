@@ -1,6 +1,7 @@
-Missing features/error list:
-- Walls are displayed at wrong place
-- Game physics are missing (ball movement, walls, ...)
-- Gyro Sensor is not used until now
-- Ball animation needs to be done (with re-drawing the map each x milliseconds)
-- levels need to be designed
+LabyrinthGame is a game, where you have to navigate your blue ball to reach the violet end and avoid any yellow holes by tilting your device. You can find a demo of the game on Youtube: https://www.youtube.com/watch?v=W34TfpZidy0
+
+Collaborators:
+<br/>
+k12205873 Tobias Wösenböck
+<br/>
+k12241067 Niko Rudolf
