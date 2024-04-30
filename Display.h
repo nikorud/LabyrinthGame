@@ -5,18 +5,12 @@
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h>
 
-#include "Gyro.h"
-#include "Coordinate.h"
-#include "Maze.h"
-#include "Level.h"
-
 class Display {  
   public:
     static void initialize();
     static void getTouchInput();
     static int getSizeX();
     static int getSizeY();
-
     static void fillScreen(uint16_t color);
 
     static void startScreen();
@@ -24,33 +18,20 @@ class Display {
     static void nextLvlScreen();
     static void endScreen();
 
-    static void drawLine(int x1, int y1, int x2, int y2, uint16_t color);
-    static void fillRect(int x1, int y1, int x2, int y2, uint16_t color);
-    static void fillRect(Coordinate *start, Coordinate *end, uint16_t color);
-    static void drawWall(int x, int y);
-    static void drawWall(int x, int y, int wSize);
-    static void drawExit(int x, int y, int gSize);
-    
-    static void fillCircle(int x, int y, int radius, uint16_t color);
-    static void fillCircle(Coordinate *c, int radius, uint16_t color);
-    static void drawCircle(int x, int y, int radius, uint16_t color);
-    static void drawCircle(Coordinate *c, int radius, uint16_t color);
-
-    static void drawHole(int x, int y, int hSize);
-    static void drawBall(int x, int y, int bSize);
-    static void drawBall(int old_x, int old_y, int new_x, int new_y, int bSize);
-
     static void printText(int x, int y, String txt, int txtSize, uint16_t color);
     static void printText(int x, int y, String txt, int txtSize);
     static void printText(int x, int y, String txt);
-    static void printText(Coordinate *c, String txt);
+
+    static void drawLine(int x1, int y1, int x2, int y2, uint16_t color);
+    static void fillRect(int x1, int y1, int x2, int y2, uint16_t color);    
+    static void fillCircle(int x, int y, int radius, uint16_t color);
+    static void drawCircle(int x, int y, int radius, uint16_t color);
     
-    //static void drawHole(Coordinate *c);
-    //static void drawBall(Coordinate *c);
-    //static void drawWall(Wall *w);
-    //static void drawWall(Line *l);
-    //static void drawLine(Line *l, uint16_t color);
-    //static void drawLine(Line *l);
+    static void drawWall(int x, int y, int wSize);
+    static void drawExit(int x, int y, int gSize);
+    static void drawHole(int x, int y, int hSize);
+    static void drawBall(int old_x, int old_y, int new_x, int new_y, int bSize);
+    static void drawBall(int x, int y, int bSize);    
 };
 
 #endif

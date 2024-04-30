@@ -1,5 +1,4 @@
 #include "Difficulty.h"
-#include "Maze.h"
 
 #ifndef LEVEL_H
 #define LEVEL_H
@@ -9,10 +8,8 @@ class Level {
     int nr;
     bool alive;
     bool solved;
-    //char** maze;
     Difficulty difficulty;
     int nAttempts;
-    bool finished;
     void drawInfoBar();
     void drawMaze(int lvl);
 
@@ -23,7 +20,6 @@ class Level {
     int getNr();
     Difficulty getDifficulty();    
     int getNAttempts();
-    bool isFinished();
     void load();
     static void refreshLvl();
     bool validBallPos(int x, int y);

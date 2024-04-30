@@ -1,5 +1,4 @@
 #include "Level.h"
-#include "Maze.h"
 #include "Difficulty.h"
 #include "Display.h"
 #include "Ball.h"
@@ -172,7 +171,6 @@ Level::Level(int nr) {
   solved = false;
   difficulty = EASY;
   nAttempts = 0;
-  finished = false;
 }
 
 int Level::getNr(){
@@ -187,10 +185,6 @@ int Level::getNAttempts() {
   return nAttempts;
 }
 
-bool Level::isFinished(){
-    return finished;
-}
-
 void drawMaze(int lvl) {
   
 }
@@ -199,14 +193,6 @@ void Level::load() {
   Display::fillScreen(WHITE);
   alive = true;
   solved = false;
-  
-  switch(curr_lvl) {
-    case 1: 
-       difficulty = EASY;  
-      break;
-    default:
-      break;
-  }
 
   // ... draw lvl from array ...
   int size_multiplier = DISPLAY_SIZE_X/MAZE_SIZE_X;
@@ -263,7 +249,7 @@ void Level::refreshLvl() {
           Display::drawHole(x*size_multiplier, y*size_multiplier, size_multiplier);
           break;
         case 'e':
-          // hole
+          // exit
           Display::drawExit(x*size_multiplier, y*size_multiplier, size_multiplier);
           break;
         default:

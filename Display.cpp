@@ -1,7 +1,5 @@
 #include "Display.h"
 #include "Gyro.h"
-#include "Coordinate.h"
-#include "Maze.h"
 #include "Level.h"
 #include "Ball.h"
 
@@ -90,9 +88,18 @@ void Display::getTouchInput() {
   }
 }
 
+int Display::getSizeX() {
+  return tft.width();
+}
+
+int Display::getSizeY() {
+  return tft.height();
+}
+
 void Display::fillScreen(uint16_t color) {
   tft.fillScreen(color);
 }
+
 
 void Display::startScreen() {
   tft.fillScreen(BLACK);
@@ -168,74 +175,6 @@ void Display::endScreen() {
   }
 }
 
-int Display::getSizeX() {
-  return tft.width();
-}
-
-int Display::getSizeY() {
-  return tft.height();
-}
-
-
-void Display::drawLine(int x1, int y1, int x2, int y2, uint16_t color) {
-  tft.drawLine(x1, y1, x2, y2, color);
-}
-
-void Display::fillRect(int x1, int y1, int x2, int y2, uint16_t color) {
-  tft.fillRect(x1, y1, x2, y2, color);
-}
-
-void Display::fillRect(Coordinate *start, Coordinate *end, uint16_t color) {
-  fillRect(start->getX(), start->getY(), end->getX(), end->getY(), color);
-}
-
-#define WALL_THICKNESS 10
-
-void Display::drawWall(int x, int y) {
-  drawWall(x, y, WALL_THICKNESS);
-}
-
-void Display::drawWall(int x, int y, int wSize) {
-  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && wSize > 0) {
-    fillRect(x, y, wSize, wSize, BLACK);
-  }
-}
-
-void Display::drawExit(int x, int y, int gSize) {
-  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && gSize > 0) {
-    fillRect(x, y, gSize, gSize, MAGENTA);
-  }
-}
-
-void Display::drawCircle(int x, int y, int radius, uint16_t color) {
-  tft.drawCircle(x, y, radius, color);
-}
-
-void Display::drawCircle(Coordinate *c, int radius, uint16_t color) {
-  drawCircle(c->getX(), c->getY(), radius, color);
-}
-
-void Display::fillCircle(int x, int y, int radius, uint16_t color) {
-  tft.fillCircle(x, y, radius, color);
-}
-
-void Display::fillCircle(Coordinate *c, int radius, uint16_t color) {
-  fillCircle(c->getX(), c->getY(), radius, color);
-}
-
-void Display::drawHole(int x, int y, int hSize) {
-  fillCircle(x+(hSize/2), y+(hSize/2), hSize/2, YELLOW);
-}
-
-void Display::drawBall(int x, int y, int bSize) {
-  fillCircle(x+(bSize/2), y+(bSize/2), bSize/2, BLUE);
-}
-
-void Display::drawBall(int old_x, int old_y, int new_x, int new_y, int bSize) {
-  fillCircle(old_x+(bSize/2), old_y+(bSize/2), bSize/2, WHITE);
-  Level::refreshLvl();
-  fillCircle(new_x+(bSize/2), new_y+(bSize/2), bSize/2, BLUE);
-}
 
 void Display::printText(int x, int y, String txt, int txtSize, uint16_t color) {
   tft.setTextSize(txtSize);
@@ -252,45 +191,56 @@ void Display::printText(int x, int y, String txt) {
   printText(x, y, txt, 1);
 }
 
-void Display::printText(Coordinate *c, String txt) {
-  printText(c->getX(), c->getY(), txt);
+
+void Display::drawLine(int x1, int y1, int x2, int y2, uint16_t color) {
+  tft.drawLine(x1, y1, x2, y2, color);
 }
 
-// --------- old versions of functions ----------------------
-
-/*void Display::drawWall(Wall *w) {
-  if(w->getLine().getStart().getX() == w->getLine().getEnd().getX()) {
-    //vertical line
-    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX()+w->getThickness(), w->getLine().getEnd().getY(), BLUE);
-  } else {
-    //horizontal line
-    fillRect(w->getLine().getStart().getX(), w->getLine().getStart().getY(), w->getLine().getEnd().getX(), w->getLine().getEnd().getY()+w->getThickness(), BLUE);    
-  }
-}*/
-
-/*void Display::drawWall(Line *l) { 
-  if(l->getStart().getX() == l->getEnd().getX()) {
-    //vertical line
-    fillRect(l->getStart().getX(), l->getStart().getY(), (l->getEnd().getX())+10, l->getEnd().getY(), BLUE);
-  } else {
-    //horizontal line
-    fillRect(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), (l->getEnd().getY())+10, BLUE);
-  }
-}*/
-
-/* void Display::drawBall(Coordinate *c) {
-  fillCircle(c->getX(), c->getY(), BALL_SIZE/2, BLUE);
-} */
-
-
-/*void Display::drawHole(Coordinate *c) {
-  fillCircle(c->getX(), c->getY(), HOLE_SIZE/2, YELLOW);
-}*/
-
-/*void Display::drawLine(Line *l, uint16_t color) {
-  drawLine(l->getStart().getX(), l->getStart().getY(), l->getEnd().getX(), l->getEnd().getY(), color);
+void Display::fillRect(int x1, int y1, int x2, int y2, uint16_t color) {
+  tft.fillRect(x1, y1, x2, y2, color);
 }
 
-void Display::drawLine(Line *l) {
-  drawLine(l, BLUE);
-}*/
+void Display::drawCircle(int x, int y, int radius, uint16_t color) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && radius > 0) {
+    tft.drawCircle(x, y, radius, color);
+  }
+}
+
+void Display::fillCircle(int x, int y, int radius, uint16_t color) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && radius > 0) {
+    tft.fillCircle(x, y, radius, color);
+  }
+}
+
+
+void Display::drawWall(int x, int y, int wSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && wSize > 0) {
+    fillRect(x, y, wSize, wSize, BLACK);
+  }
+}
+
+void Display::drawExit(int x, int y, int eSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && eSize > 0) {
+    fillRect(x, y, eSize, eSize, MAGENTA);
+  }
+}
+
+void Display::drawHole(int x, int y, int hSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && hSize > 0) {
+    fillCircle(x+(hSize/2), y+(hSize/2), hSize/2, YELLOW);
+  }
+}
+
+void Display::drawBall(int old_x, int old_y, int new_x, int new_y, int bSize) {
+  if(new_x >= 0 && new_x <= DISPLAY_SIZE_X && new_y >= 0 && new_y <= DISPLAY_SIZE_Y && bSize > 0) {
+    fillCircle(old_x+(bSize/2), old_y+(bSize/2), bSize/2, WHITE);
+    Level::refreshLvl();
+    fillCircle(new_x+(bSize/2), new_y+(bSize/2), bSize/2, BLUE);
+  }
+}
+
+void Display::drawBall(int x, int y, int bSize) {
+  if(x >= 0 && x <= DISPLAY_SIZE_X && y >= 0 && y <= DISPLAY_SIZE_Y && bSize > 0) {
+    fillCircle(x+(bSize/2), y+(bSize/2), bSize/2, BLUE);
+  }
+}

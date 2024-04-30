@@ -1,5 +1,4 @@
 #include "Ball.h"
-#include "Coordinate.h"
 #include "Display.h"
 #include "Level.h"
 
@@ -14,9 +13,9 @@
 
 #define BALL_MOVEMENT 10
 
+int Ball::ballSize = 9;
 int Ball::x = 0;
 int Ball::y = 0;
-int Ball::ballSize = 9;
 
 int Ball::getX() {
   return Ball::x;
@@ -106,68 +105,3 @@ void Ball::moveBall(int dir) {
       break;
   }
 }
-
-
-/*Ball::Ball() {
-  c = new Coordinate(0,0);
-}*/
-
-/*void Ball::setCoordinate(Coordinate* c) {
-  curr_c = c;
-}
-
-Coordinate Ball::getCoordinate() {
-  return *curr_c;
-}
-
-void Ball::draw(){
-  Display::drawBall(curr_c->getX(), curr_c->getY(), ballSize);
-}
-
-void Ball::moveBall(int dir) {
-  switch(dir) {
-    case L:
-      Serial.println("Left");
-      if(Level::validBallPos(curr_c->getX()-BALL_MOVEMENT, curr_c->getY())) {
-        Serial.println("Moved Left");
-        curr_c->setX(curr_c->getX()-BALL_MOVEMENT);
-        
-        draw();
-        Level::refreshLvl();
-      }
-      break;
-    case R:
-      Serial.println("Ball: Right");
-      if(Level::validBallPos(curr_c->getX()+BALL_MOVEMENT, curr_c->getY())) {
-        Serial.println("Moved Right");
-        curr_c->setX(curr_c->getX()+BALL_MOVEMENT);
-        
-        draw();
-        Level::refreshLvl();
-      }
-      break;
-    case U:
-      Serial.println("Ball: Up");
-      if(Level::validBallPos(curr_c->getX(), curr_c->getY()-BALL_MOVEMENT)) {
-        Serial.println("Moved Up");
-        curr_c->setY(curr_c->getY()+BALL_MOVEMENT);
-        
-        draw();
-        Level::refreshLvl();
-      }
-      break;
-    case D: 
-      Serial.println("Ball: Down");
-      if(Level::validBallPos(curr_c->getX(), curr_c->getY()+BALL_MOVEMENT)) {
-        Serial.println("Moved Down");
-        curr_c->setY(curr_c->getY()+BALL_MOVEMENT);
-        
-        draw();
-        Level::refreshLvl();
-      }
-      break;
-    default:
-      // ... do nothing ...
-      break;
-  }
-}*/

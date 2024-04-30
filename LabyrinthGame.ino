@@ -10,8 +10,6 @@
 
 #include "Display.h"
 #include "Gyro.h"
-#include "Coordinate.h"
-#include "Maze.h"
 #include "Level.h"
 
 void setup(void) {  
