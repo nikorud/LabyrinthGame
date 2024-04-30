@@ -2,9 +2,9 @@
 #define ENUM_H
 
 enum Difficulty {
-  EASY = 1,
-  MEDIUM = 2,
-  HARD = 3
+  EASY = 0,
+  MEDIUM = 1,
+  HARD = 2
 };
 
 const char* getName(Difficulty difficulty);

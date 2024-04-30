@@ -163,13 +163,14 @@ char lvl2[MAZE_SIZE_Y][MAZE_SIZE_X] = {
         {'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'}
  };
 
-char* levels[] = { *lvl1, *lvl2, *lvl3, *lvl4 };  // Array von Zeigern auf die Level
+char* levels[] = { *lvl1, *lvl2, *lvl3, *lvl4 };  // ... array of pointers to the levels ...
+Difficulty difficulties[] = { EASY, MEDIUM, MEDIUM, HARD };
 
 Level::Level(int nr) {
   this -> nr = nr;
   alive = true;
   solved = false;
-  difficulty = EASY;
+  difficulty = difficulties[nr-1];
   nAttempts = 0;
 }
 
